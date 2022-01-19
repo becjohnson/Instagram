@@ -1,0 +1,168 @@
+﻿@model IEnumerable<Instagram.Model.Post_Model.PostListItem>
+@using System.Text.RegularExpressions;
+@using Instagram.Service 
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        if (item.Image != null)
+        {
+            <div class="col-8">
+                <div class="card" style="margin-bottom:33px;">
+                    <div class="text-center">
+                        <div class="text-left row" style="margin-top:20px;margin-left:20px;">
+                            <div style="background-color:darkgray;border-radius:33pt;width:33px;height:33px;margin-right:22px;"></div>
+                            <a>@item.UserName</a>
+                        </div>
+                        <div class="text-right" style="margin-top:-20px;margin-right:20px;">
+                            <i class="fa-solid fa-ellipsis" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" asp-action="Delete" asp-route-id="@item.PostId">
+                                    Delete
+                                </a>
+                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.PostId">
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                        <img class="img-fluid col-lg-9 col-md-6 col-sm-8" src="" alt="" /><br />
+                        <p class="card-text content">@item.Content</p>
+                        <div class="brightness" style="-webkit-filter: brightness(@item.Brightness%); filter: brightness(@item.Brightness%);">
+                            <div class="contrast" style="-webkit-filter: contrast(@item.Contrast%);filter: contrast(@item.Contrast%)">
+                                <div class="greyscale" style="-webkit-filter: grayscale(@item.GreyScale%);filter: grayscale(@item.GreyScale%);">
+                                    <div class="saturate" style="-webkit-filter: saturate(@item.Saturation%);filter: saturate(@item.Saturation%);">
+                                        <div class="invert" style="-webkit-filter: invert(@item.Invert%);filter: invert(@item.Invert%);">
+                                            <div class="sepia" style="-webkit-filter:sepia(@item.Sepia%);filter: sepia(@item.Sepia%);">
+                                                <a asp-action="Details" asp-route-id="@item.PostId"><img class="img-fluid" src="~/images/@item.Image" alt="@item.Alt" style="width: 725px; height: 750px; object-fit: cover;"></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size:12px;color:darkgrey;text-decoration:double;">@ToRelativeDate(item.CreatedUtc)</p>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="row" contenteditable="true" id="editable" style="width:725px; height:50px;">
+                                <p>Add a comment...</p>
+                                <button contenteditable="false" style="border:none;background-color:white;color:cornflowerblue;">Post</button><div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (item.Content != null && item.Image == null)
+        {
+            <div class="col-8">
+                <div class="card" style="margin-bottom:33px;">
+                    <div class="text-center">
+                        <div class="text-left row" style="margin-top:20px;margin-left:20px;">
+                            <div style="background-color:darkgray;border-radius:33pt;width:33px;height:33px;margin-right:22px;"></div>
+                            <a>@item.UserName</a>
+                        </div>
+                        <div class="text-right" style="margin-top:-20px;margin-right:20px;">
+                            <i class="fa-solid fa-ellipsis" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" asp-action="Delete" asp-route-id="@item.PostId">
+                                    Delete
+                                </a>
+                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.PostId">
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                        <img class="img-fluid col-lg-9 col-md-6 col-sm-8" src="" alt="" /><br />
+                        <p class="card-text content">@item.Content</p>
+                        <div class="card-body">
+                            <p style="font-size:12px;color:darkgrey;text-decoration:double;">@ToRelativeDate(item.CreatedUtc)</p>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="row" contenteditable="true" id="editable" style="width:725px; height:50px;">
+                                <p>Add a comment...</p>
+                                <button contenteditable="false" style="border:none;background-color:white;color:cornflowerblue;">Post</button><div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <div class="col-4 bg-white" style="height:725px;border:.5px lightgrey solid; position:relative; top:-1035px;">
+        Blah blah blah, profile info will go here and suggested people to follow
+    </div>
+</div>
+@{ string ToRelativeDate(DateTimeOffset input)
+    {
+        TimeSpan oSpan = DateTimeOffset.Now.Subtract(input);
+        double TotalMinutes = oSpan.TotalMinutes;
+        string Suffix = " ago";
+
+        if (TotalMinutes < 0.0)
+        {
+            TotalMinutes = Math.Abs(TotalMinutes);
+            Suffix = " from now";
+        }
+
+        var aValue = new SortedList<double, Func<string>>();
+        aValue.Add(0.75, () => "less than a minute");
+        aValue.Add(1.5, () => "about a minute");
+        aValue.Add(45, () => string.Format("{0} minutes", Math.Round(TotalMinutes)));
+        aValue.Add(90, () => "about an hour");
+        aValue.Add(1440, () => string.Format("about {0} hours", Math.Round(Math.Abs(oSpan.TotalHours)))); // 60 * 24
+        aValue.Add(2880, () => "a day"); // 60 * 48
+        aValue.Add(43200, () => string.Format("{0} days", Math.Floor(Math.Abs(oSpan.TotalDays)))); // 60 * 24 * 30
+        aValue.Add(86400, () => "about a month"); // 60 * 24 * 60
+        aValue.Add(525600, () => string.Format("{0} months", Math.Floor(Math.Abs(oSpan.TotalDays / 30)))); // 60 * 24 * 365
+        aValue.Add(1051200, () => "about a year"); // 60 * 24 * 365 * 2
+        aValue.Add(double.MaxValue, () => string.Format("{0} years", Math.Floor(Math.Abs(oSpan.TotalDays / 365))));
+
+        return aValue.First(n => TotalMinutes < n.Key).Value.Invoke() + Suffix;
+    }
+}
+@{ void FindHashtagId(string content)
+    {
+        foreach (var item in Model)
+        {
+            var rx = new Regex("#+[a-zA-Z0-9(_)]{1,}", RegexOptions.Compiled);
+            MatchCollection matches = rx.Matches(content);
+            var list = matches.Cast<Match>().Select(match => match.Value).ToList();
+            string hashtag = string.Join(",", list.Select(s => s[0..^0]).Distinct());
+            //if (hashtag == item.Tags.Select(e => e.HashtagId == hashtag))
+            {
+
+            }
+
+            //things we have 1. a method on the backend that finds hashtags in the post 2. a method on the front end that
+            //will find the hashtags and wrap them in an anchor tag, but the anchor tag needs to have a route-id for each
+            //individual hashtag so we need a method that will find the id associated with that particular hashtag
+        }
+    }
+}
+@section Scripts{
+    @foreach (var item in Model)
+    {
+        <script>
+        (function (win, doc) {
+            'use strict';
+
+                entries = doc.querySelectorAll('p.content'),
+                i;
+            if (entries.length > 0) {
+                for (i = 0; i < entries.length; i = i + 1) {
+                    entries[i].innerHTML = entries[i].innerHTML.replace(/#(\S+)/g, '<a class="dropdown-item" asp-action="Index" asp-route-id="@item.Tags" title="Find more posts tagged with #$1">#$1</a>');
+                }
+            }
+        }(this, this.document));
+        </script>
+    }
+}
+

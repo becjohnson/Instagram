@@ -1,0 +1,62 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+<center>
+    <div class="container bg-white col-lg-4 col-md-6 col-sm-8" style="border:.5px solid lightgrey;">
+        <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <img src="~/assets/Logo.png" />
+            <h4 style="color: #30873E;margin-top:-25px;">Sign up to see what awaits!</h4>
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <input asp-for="Input.UserName" class="form-control bg-light" placeholder="Username" style="width:14rem;font-size:10pt;" />
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="Input.Email" class="form-control bg-light" placeholder="Email" style="width:14rem;font-size:10pt;" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="Input.Password" class="form-control bg-light" placeholder="Password" style="width:14rem;font-size:10pt;" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="Input.ConfirmPassword" class="form-control bg-light" placeholder="Confirm Password" style="width:14rem;font-size:10pt;" />
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 14rem; font-size: 12pt; background-color: #30873E;">Sign Up</button><br />
+            <p style="font-size:10px;">
+                <br />
+                By signing up, you agree to our Terms, Data Policy and Cookies Policy.<br />
+            </p>
+        </form>
+    </div>
+    <br />
+    <div class="container bg-white col-md-4" style="border:.5px solid lightgrey;">
+        <p style="margin:5pt;">Already have an account? <a asp-page="./Login" style="text-decoration-style: double; color: #30873E;">Log in</a></p>
+    </div>
+</center>
+@{
+    if ((Model.ExternalLogins?.Count ?? 0) == 0)
+    {
+
+    }
+    else
+    {
+        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+            <div>
+                <p>
+                    @foreach (var provider in Model.ExternalLogins)
+                    {
+                        <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                    }
+                </p>
+            </div>
+        </form>
+    }
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
