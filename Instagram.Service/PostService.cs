@@ -9,6 +9,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using AutoMapper;
 
 namespace Instagram.Service
 {
@@ -18,37 +21,44 @@ namespace Instagram.Service
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext dbContext;
+        private readonly IMapper _mapper;
         public PostService() { }
-        public PostService(Guid userId, IWebHostEnvironment hostEnvironment)
+        public PostService(Guid userId, IWebHostEnvironment hostEnvironment, ApplicationDbContext ctx, IMapper mapper)
         {
+            _mapper = mapper;
+            dbContext = ctx;
             _userId = userId;
             webHostEnvironment = hostEnvironment;
         }
-        public bool CreatePost(PostCreate model)
+        public bool Create(PostCreate model)
         {
-            string uniqueFileName = UploadedVideo(model);
-            string uniqueFileName2 = UploadedImage(model);
-            List<string> hashTags = Hashtagger(model.Content);
-            var user = _userManager.FindByNameAsync(User.Identity.Name).Result;
-            Tag hashTag = new() { TagId = string.Join(",", hashTags.Select(s => s[0..^0]).Distinct()) };
-            dbContext.Tags.Add(hashTag);
-            var entity =
-            new Post
+            string uniqueFileName2 = UploadImage(model);
+            if (model.Content != null)
             {
-                OwnerId = _userId,
-                UserName = user.UserName,
-                ProfilePicture = user.ProfilePicture,
-                Alt = model.Alt,
-                GreyScale = model.GreyScale,
-                Brightness = model.Brightness,
-                Contrast = model.Contrast,
-                Saturation = model.Saturation,
-                Content = model.Content,
-                CreatedUtc = DateTimeOffset.Now,
-                Video = uniqueFileName,
-                Image = uniqueFileName2,
-                Tags = hashTag
-            };
+                List<string> hashTags = Hashtagger(model.Content);
+                foreach (string item in hashTags)
+                {
+                    hashTags.Select(s => s[0..^0].Distinct());
+                    Tag hashTag = new() { TagId = item };
+                    dbContext.Tags.Add(hashTag);
+                }
+            }
+            var user = _userManager.FindByNameAsync(User.Identity.Name).Result;
+            var entity =
+                        new Post
+                        {
+                            OwnerId = _userId,
+                            UserName = user.UserName,
+                            ProfilePicture = user.ProfilePicture,
+                            Alt = model.Alt,
+                            GreyScale = model.GreyScale,
+                            Brightness = model.Brightness,
+                            Contrast = model.Contrast,
+                            Saturation = model.Saturation,
+                            Content = model.Content,
+                            CreatedUtc = DateTimeOffset.Now,
+                            Image = uniqueFileName2
+                        };
             dbContext.Posts.Add(entity);
             return dbContext.SaveChanges() == 2;
         }
@@ -80,7 +90,7 @@ namespace Instagram.Service
                 ImageLocation = post.Image,
             };
         }
-        public bool UpdatePost(PostEdit model)
+        public bool Update(PostEdit model)
         {
             var entity =
                     dbContext
@@ -90,7 +100,7 @@ namespace Instagram.Service
             entity.ModifiedUtc = DateTimeOffset.UtcNow;
             return dbContext.SaveChanges() == 1;
         }
-        public bool DeletePost(string id)
+        public bool Delete(string id)
         {
             var entity =
                     dbContext
@@ -112,25 +122,30 @@ namespace Instagram.Service
             }
             return uniqueFileName;
         }
-        private string UploadedImage(PostCreate model)
+        public static string UploadImage(PostCreate model)
         {
-            string uniqueFileName2 = null;
-            if (model.Image != null)
+            if (model.Image.Length > 0)
             {
-                string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
-                uniqueFileName2 = Guid.NewGuid().ToString() + "_" + model.Image.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName2);
-                using var fileStream = new FileStream(filePath, FileMode.Create);
-                model.Image.CopyTo(fileStream);
+                var filePath = Path.GetTempFileName();
+
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    model.Image.CopyToAsync(stream);
+                }
+                return filePath;
             }
-            return uniqueFileName2;
+            return null;
         }
         public static List<string> Hashtagger(string content)
         {
-            var rx = new Regex("#+[a-zA-Z0-9(_)]{1,}", RegexOptions.Compiled);
-            MatchCollection matches = rx.Matches(content);
-            var list = matches.Cast<Match>().Select(match => match.Value).ToList();
-            return list;
+            if (content != null)
+            {
+                var rx = new Regex("#+[a-zA-Z0-9(_)]{1,}", RegexOptions.Compiled);
+                MatchCollection matches = rx.Matches(content);
+                var list = matches.Cast<Match>().Select(match => match.Value).ToList();
+                return list;
+            }
+            return null;
         }
         public void HashtagFinder(string content, PostListItem post)
         {

@@ -4,6 +4,7 @@ C:\Users\beaut\source\repos\Instagram\Instagram.Data\bin\Debug\net5.0\Instagram.
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\bin\Debug\net5.0\Instagram.Data.dll
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\bin\Debug\net5.0\ref\Instagram.Data.dll
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\bin\Debug\net5.0\Instagram.Data.pdb
+C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.Data.csproj.AssemblyReference.cache
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.Data.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.Data.AssemblyInfoInputs.cache
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.Data.AssemblyInfo.cs
@@ -12,4 +13,3 @@ C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\ref\Instagram.Data.dll
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.Data.pdb
 C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.Data.genruntimeconfig.cache
-C:\Users\beaut\source\repos\Instagram\Instagram.Data\obj\Debug\net5.0\Instagram.Data.csproj.AssemblyReference.cache
